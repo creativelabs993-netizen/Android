@@ -1,16 +1,26 @@
 # CoinForge Android
 
-Native Android project and GitHub Actions APK build.
+Native Android app and GitHub Actions APK build.
 
-## Current status — prototype, not a miner
+## Current status
 
-This repository builds an Android APK shell, but **it does not mine CoinForge coins**. A real miner requires a working CoinForge consensus implementation, a deployed and reachable peer network, valid block templates, and a way to submit accepted blocks. Those pieces have not yet been built or verified. A local CPU hash loop or simulated balance would not be real mining, so this app intentionally does not claim to mine or award coins.
+The app now includes an **on-device SHA-256 proof-of-work benchmark**. It runs on the phone's CPU, reports hashes/second, and counts hashes meeting a local 20-leading-zero-bit test target.
 
-## Build the APK
+**This is not CoinForge blockchain mining and does not earn coins.** The repository does not yet contain a verified CoinForge consensus/node implementation, valid network block templates, a peer network, or a block submission path. A benchmark hash is not a valid CoinForge block.
+
+## Phone safety
+
+- Runs only while the app screen is open; it is not a background service.
+- Yields the CPU regularly and automatically stops after five minutes.
+- Stop immediately if the phone becomes hot. Do not leave it running unattended or while charging.
+- Results and local solutions are diagnostic only; no balance or reward is created.
+
+## Next required engineering milestone
+
+Implement and test CoinForge consensus and block validation, then provide the phone miner with a valid block template, the current network target, and a verified block-submission path. Only blocks accepted by the node should count as mined blocks or rewards.
+
+## Build APK
 
 1. Open the **Actions** tab.
-2. Select **Build CoinForge Android APK**.
-3. Click **Run workflow**.
-4. When it completes successfully, open the run and download the `coinforge-android-debug` artifact.
-
-The resulting debug APK is a prototype status client, not a production release or mining software. Do not treat CoinForge tokens as having monetary value.
+2. Select **Build CoinForge Android APK** and click **Run workflow**.
+3. After a successful run, download the `coinforge-android-debug` artifact from the workflow run.
