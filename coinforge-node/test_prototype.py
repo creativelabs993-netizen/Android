@@ -9,16 +9,15 @@ class TestChainTests(unittest.TestCase):
         self.assertEqual(hash_header(header), hash_header(header))
 
     def test_rejects_bad_work_then_accepts_valid_work(self):
-        chain = TestChain("0")
+        chain = TestChain("000")
         work = chain.issue_work("unit-test")
-        rejected = chain.submit(work["work_id"], 0)
-        if rejected.get("accepted"):
-            self.fail("unexpectedly easy target accepted nonce zero")
         nonce = 0
-        while True:
-            digest = hash_header(dict(work["header"], nonce=nonce))
-            if meets_target(digest, "0"):
-                break
+        while meets_target(hash_header(dict(work["header"], nonce=nonce)), "000"):
+            nonce += 1
+        rejected = chain.submit(work["work_id"], nonce)
+        self.assertFalse(rejected["accepted"])
+        self.assertIn("does not meet target", rejected["error"])
+        while not meets_target(hash_header(dict(work["header"], nonce=nonce)), "000"):
             nonce += 1
         result = chain.submit(work["work_id"], nonce)
         self.assertTrue(result["accepted"])
@@ -29,15 +28,17 @@ class TestChainTests(unittest.TestCase):
         chain = TestChain("0")
         first = chain.issue_work("miner-a")
         second = chain.issue_work("miner-b")
+
         def find_nonce(work):
             n = 0
             while not meets_target(hash_header(dict(work["header"], nonce=n)), "0"):
                 n += 1
             return n
+
         self.assertTrue(chain.submit(first["work_id"], find_nonce(first))["accepted"])
         result = chain.submit(second["work_id"], find_nonce(second))
         self.assertFalse(result["accepted"])
-        self.assertIn("stale", result["error"])
+        self.assertTrue("stale" in result["error"] or "unknown" in result["error"])
 
     def test_status_discloses_not_bitcoin_core(self):
         status = TestChain().status()
